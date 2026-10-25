@@ -11,6 +11,3 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
-
-#Playground {
-}
