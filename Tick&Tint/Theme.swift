@@ -16,6 +16,8 @@ extension Color {
     static let secondaryBrand = Color(hex: "F2765E")
     static let graySec2 = Color(hex: "8E8E93")
     static let borderSubtle = Color(hex: "D1D1D6")
+    static let secondaryBrandLight = Color(hex: "F99F8E")
+    static let secondaryBrandSelected = Color(hex: "D65A43")
 }
 
 // مساعد لتحويل الأكواد الستينية (Hex) إلى ألوان في SwiftUI

@@ -1,95 +1,118 @@
+//
+//  ContentView.swift
+//  Tick&Tint
+//
+//  Created by Nada on 11/05/1448 AH.
+//
+
 import SwiftUI
 
-// App Colors
-let coralOrange = Color(
-    red: 242.0 / 255.0,
-    green: 118.0 / 255.0,
-    blue: 94.0 / 255.0
-)
-
-let navyBlue = Color(
-    red: 49.0 / 255.0,
-    green: 91.0 / 255.0,
-    blue: 140.0 / 255.0
-)
-
-let offWhite = Color(
-    red: 255.0 / 255.0,
-    green: 251.0 / 255.0,
-    blue: 250.0 / 255.0
-)
-
 struct ContentView: View {
-    
+
+    // false = intro screen, true = session screen
+    @State private var showSession = false
+
     var body: some View {
-        
-        NavigationStack {
-            
+        ZStack {
+            if showSession {
+                SessionView()
+                    .transition(.opacity)
+            } else {
+                IntroView(onBegin: {
+                    // Fade from the intro to the session screen
+                    withAnimation(.easeInOut(duration: 0.6)) {
+                        showSession = true
+                    }
+                })
+                .transition(.opacity)
+            }
+        }
+    }
+}
+
+struct IntroView: View {
+
+    // Runs when the user taps "Begin Your Journey"
+    let onBegin: () -> Void
+
+    // Controls the fade-in when the intro first appears
+    @State private var isVisible = false
+
+    var body: some View {
+
+        ZStack {
+
+            // Background (stays still, the rest fades in on top of it)
+            Color.appBackground
+                .ignoresSafeArea()
+
             GeometryReader { geometry in
-                
+
                 ZStack(alignment: .top) {
-                    
-                    // Background
-                    offWhite
-                        .ignoresSafeArea()
-                    
+
                     // Orange top section
                     VStack(spacing: 0) {
-                        
-                        coralOrange
+                        Color.secondaryBrand
                             .frame(height: geometry.size.height * 0.48)
-                        
+
                         Spacer()
                     }
                     .ignoresSafeArea()
-                    
+
                     // Main content
-                    ZStack(alignment: .top) {
-                        
+                    VStack(spacing: AppSpacing.large) {
+
+                        Spacer()
+
                         // App Logo
                         Image(.image)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 140, height: 140)
                             .clipShape(Circle())
-                            .position(
-                                x: geometry.size.width / 2,
-                                y: geometry.size.height * 0.40
-                            )
-                        
+                            .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+
                         // Tagline
                         Text("Where Creativity Meets\nConsistency.")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.system(
+                                size: AppFonts.title1,
+                                weight: .bold
+                            ))
                             .multilineTextAlignment(.center)
-                            .foregroundColor(.black)
-                            .position(
-                                x: geometry.size.width / 2,
-                                y: geometry.size.height * 0.56
-                            )
-                        
+                            .foregroundStyle(Color.primaryText)
+
+                        Spacer()
+
                         // Begin Your Journey button
-                        NavigationLink(destination: SessionView()) {
-                            
+                        Button(action: onBegin) {
                             Text("Begin Your Journey")
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundColor(.white)
-                                .frame(width: geometry.size.width * 0.78)
-                                .frame(height: 50)
-                                .background(navyBlue)
-                                .cornerRadius(25)
-                                .contentShape(Capsule())
+                                .font(.system(
+                                    size: AppFonts.body,
+                                    weight: .medium
+                                ))
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                                .background(Color.primaryBrand)
+                                .clipShape(Capsule())
                         }
                         .buttonStyle(.plain)
-                        .position(
-                            x: geometry.size.width / 2,
-                            y: geometry.size.height * 0.66
-                        )
+                        .padding(.horizontal, 55)
+                        .padding(.bottom, 95)
                     }
+                    .padding(.top, 100)
                     .frame(
-                        width: geometry.size.width,
-                        height: geometry.size.height
+                        maxWidth: .infinity,
+                        maxHeight: .infinity
                     )
                 }
+            }
+            // Fade-in effect: starts invisible, then becomes visible
+            .opacity(isVisible ? 1 : 0)
+        }
+        .onAppear {
+            withAnimation(.easeIn(duration: 1.0)) {
+                isVisible = true
             }
         }
     }
