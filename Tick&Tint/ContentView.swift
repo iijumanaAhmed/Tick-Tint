@@ -1,32 +1,62 @@
+//
+//  ContentView.swift
+//  Tick&Tint
+//
+//  Created by Nada on 14/05/1448 AH.
+//
+
+
 import SwiftUI
 
+enum AppRoute: Hashable {
+    case session
+    case category(totalRounds: Int, workDurationMinutes: Int)
+    case timer(totalRounds: Int, workDurationMinutes: Int)
+}
+
 struct ContentView: View {
-   
+    @State private var navigationPath: [AppRoute] = []
+    
     var body: some View {
-     
+        NavigationStack(path: $navigationPath) {
+            IntroView(onBegin: {
+                navigationPath.append(.session)
+            })
+            .navigationDestination(for: AppRoute.self) { route in
+                
+                switch route {
+                case .session:
+                    SessionView(navigationPath: $navigationPath)
+                    
+                case .category(let rounds, let duration):
+                    CategoryView(
+                        totalRounds: rounds,
+                        workDurationMinutes: duration,
+                        navigationPath: $navigationPath)
+                    
+                case .timer(let rounds, let duration):
+                    FocusTimerScreen(
+                        totalRounds: rounds,
+                        workDurationMinutes: duration,
+                        navigationPath: $navigationPath)
+                }
+            }
+            //            .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }
 
 struct IntroView: View {
-    
-    // Runs when the user taps "Begin Your Journey"
     let onBegin: () -> Void
-    
-    // Controls the fade-in when the intro first appears
     @State private var isVisible = false
     
     var body: some View {
-        
         ZStack {
-            
-            // Background (stays still, the rest fades in on top of it)
             Color.appBackground
                 .ignoresSafeArea()
             
             GeometryReader { geometry in
-                
                 ZStack(alignment: .top) {
-                    
                     // Orange top section
                     VStack(spacing: 0) {
                         Color.secondaryBrand
@@ -38,7 +68,6 @@ struct IntroView: View {
                     
                     // Main content
                     VStack(spacing: AppSpacing.large) {
-                        
                         Spacer()
                         
                         // App Logo
@@ -51,22 +80,17 @@ struct IntroView: View {
                         
                         // Tagline
                         Text("Where Creativity Meets\nConsistency.")
-                            .font(.system(
-                                size: AppFonts.title1,
-                                weight: .bold
-                            ))
+                            .font(.system(size: AppFonts.title1, weight: .bold))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(Color.primaryText)
                         
                         Spacer()
                         
-                        // Begin Your Journey button
+                        // Begin button
                         Button(action: onBegin) {
+                            
                             Text("Begin Your Journey")
-                                .font(.system(
-                                    size: AppFonts.body,
-                                    weight: .medium
-                                ))
+                                .font(.system(size: AppFonts.body, weight: .medium))
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 44)
@@ -78,30 +102,19 @@ struct IntroView: View {
                         .padding(.bottom, 95)
                     }
                     .padding(.top, 100)
-                    .frame(
-                        maxWidth: .infinity,
-                        maxHeight: .infinity
-                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            // Fade-in effect: starts invisible, then becomes visible
             .opacity(isVisible ? 1 : 0)
         }
         .onAppear {
-            withAnimation(.easeIn(duration: 1.0)) {
+            withAnimation(.easeIn(duration: 0.5)) {
                 isVisible = true
             }
         }
     }
+}
+
 #Preview {
     ContentView()
 }
-    var body: some View {
-        FocusTimerScreen()
-           
-    }
-
-#Preview {
-    FocusTimerScreen()
-}
-
