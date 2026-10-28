@@ -121,7 +121,6 @@ struct IntroView: View {
         FocusTimerScreen()
            
     }
-}
 
 #Preview {
     FocusTimerScreen()
