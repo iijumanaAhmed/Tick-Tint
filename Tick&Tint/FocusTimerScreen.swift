@@ -44,6 +44,7 @@ struct FocusTimerScreen: View {
     private func exitSession() {
         isRunning = false
         timeRemaining = workDurationMinutes * 60
+        
         dismiss()
     }
 
