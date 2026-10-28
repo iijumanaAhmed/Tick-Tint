@@ -117,3 +117,13 @@ struct IntroView: View {
         }
     }
 }
+    var body: some View {
+        FocusTimerScreen()
+           
+    }
+}
+
+#Preview {
+    FocusTimerScreen()
+}
+
