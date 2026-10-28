@@ -1,32 +1,9 @@
-//
-//  ContentView.swift
-//  Tick&Tint
-//
-//  Created by Nada on 11/05/1448 AH.
-//
-
 import SwiftUI
 
 struct ContentView: View {
-
-    // false = intro screen, true = session screen
-    @State private var showSession = false
-
+   
     var body: some View {
-        ZStack {
-            if showSession {
-                SessionView()
-                    .transition(.opacity)
-            } else {
-                IntroView(onBegin: {
-                    // Fade from the intro to the session screen
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        showSession = true
-                    }
-                })
-                .transition(.opacity)
-            }
-        }
+     
     }
 }
 
@@ -116,6 +93,8 @@ struct IntroView: View {
             }
         }
     }
+#Preview {
+    ContentView()
 }
     var body: some View {
         FocusTimerScreen()
