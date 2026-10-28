@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="55px" height="54px" viewBox="0 0 55 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>c2</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="54.4415094" height="53.1" rx="8"></rect>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="c2">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <g id="Rectangle"></g>
+            <g id="Group" mask="url(#mask-2)">
+                <g transform="translate(9.0736, 4.425)">
+                    <g id="Group" stroke="none" stroke-width="1" fill="none">
+                        <ellipse id="Oval" fill="#8587A8" cx="6.77735849" cy="13.275" rx="7.77735849" ry="7.58571429"></ellipse>
+                        <ellipse id="Oval" fill="#8587A8" cx="19.4433962" cy="9.48214286" rx="9.72169811" ry="9.48214286"></ellipse>
+                        <ellipse id="Oval" fill="#8587A8" cx="32.109434" cy="13.5392857" rx="7.12924528" ry="6.95357143"></ellipse>
+                        <rect id="Rectangle" fill="#8587A8" x="-0.113207547" y="12.8607143" width="39" height="8" rx="4"></rect>
+                    </g>
+                    <line x1="6.48113208" y1="28.4464286" x2="3.88867925" y2="34.7678571" id="Path" stroke="#4B6FA3" stroke-width="4" fill="#000000" stroke-linecap="round"></line>
+                    <line x1="16.8509434" y1="28.975" x2="14.2584906" y2="35.2964286" id="Path" stroke="#4B6FA3" stroke-width="4" fill="#000000" stroke-linecap="round"></line>
+                    <line x1="27.2207547" y1="28.4464286" x2="24.6283019" y2="34.7678571" id="Path" stroke="#4B6FA3" stroke-width="4" fill="#000000" stroke-linecap="round"></line>
+                    <line x1="8.66603774" y1="38.825" x2="6.07358491" y2="45.1464286" id="Path" stroke="#4B6FA3" stroke-width="4" fill="#000000" stroke-linecap="round"></line>
+                    <line x1="19.0358491" y1="40.0892857" x2="16.4433962" y2="46.4107143" id="Path" stroke="#4B6FA3" stroke-width="4" fill="#000000" stroke-linecap="round"></line>
+                    <line x1="31.4056604" y1="38.5607143" x2="28.8132075" y2="44.8821429" id="Path" stroke="#4B6FA3" stroke-width="4" fill="#000000" stroke-linecap="round"></line>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

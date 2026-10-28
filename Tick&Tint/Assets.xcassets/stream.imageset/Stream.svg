@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="55px" height="58px" viewBox="0 0 55 58" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group">
+            <polygon id="Path" fill="#B9B9DA" points="-1.10134124e-13 24.7107143 15.554717 4.48214286 29.8132075 24.7107143 40.1830189 12.0678571 54.4415094 27.2392857 54.4415094 41.1464286 -1.10134124e-13 41.1464286"></polygon>
+            <path d="M-1.10134124e-13,36.5607143 C18.1471698,27.2892857 36.2943396,27.2892857 54.4415094,36.5607143 L54.4415094,44.1464286 L-1.10134124e-13,44.1464286 L-1.10134124e-13,36.5607143 Z" id="Path" fill="#8587A8" opacity="0.55"></path>
+            <path d="M35.4056604,52.4107143 C14.6660377,46.0892857 47.0716981,41.0321429 26.3320755,34.7107143" id="Path" stroke="#4B6FA3" stroke-width="11" stroke-linecap="round"></path>
+            <path d="M35.109434,47.8821429 C20.8509434,44.0892857 40.2943396,40.2964286 29.9245283,35.2392857" id="Path" stroke="#8FB0DA" stroke-width="3" stroke-linecap="round"></path>
+            <ellipse id="Oval" fill="#2F3A66" cx="10.6660377" cy="38.825" rx="2.59245283" ry="2.52857143"></ellipse>
+            <ellipse id="Oval" fill="#2F3A66" cx="45.3679245" cy="41.0892857" rx="2.26839623" ry="2.2125"></ellipse>
+            <ellipse id="Oval" fill="#D98C8C" cx="41.4792453" cy="5.68928571" rx="5.83301887" ry="5.68928571"></ellipse>
+        </g>
+    </g>
+</svg>
