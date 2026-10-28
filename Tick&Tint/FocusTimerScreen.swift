@@ -34,8 +34,9 @@ struct FocusTimerScreen: View {
         String(format: "%02d:%02d", timeRemaining / 60, timeRemaining % 60)
     }
 
+    // تم تعديل الشرط هنا ليتفعل فور تدوير الشاشة أفقياً على أي آيفون
     private var isStandBy: Bool {
-        horizontalSizeClass == .regular && verticalSizeClass == .compact
+        verticalSizeClass == .compact
     }
 
     // MARK: - Actions
@@ -80,70 +81,70 @@ struct FocusTimerScreen: View {
     }
 
     // MARK: - StandBy (landscape)
-
     private var standByLayout: some View {
-        GeometryReader { geo in
-            let lineWidth: CGFloat = 20
-            let radius = min(geo.size.width * 0.4, geo.size.height - 70)
-            let center = CGPoint(x: geo.size.width / 2, y: geo.size.height - lineWidth / 2)
-            let elapsed = 1 - progress
+            GeometryReader { geo in
+                let lineWidth: CGFloat = 20
+                let radius = min(geo.size.width * 0.4, geo.size.height - 70)
+                // Lifted by half the stroke so the round caps sit fully on screen.
+                let center = CGPoint(x: geo.size.width / 2, y: geo.size.height - lineWidth / 2)
+                let elapsed = 1 - progress
 
-            ZStack {
-                // Track
-                Circle()
-                    .trim(from: 0.5, to: 1)
-                    .stroke(Color.secondaryBrand.opacity(0.15),
-                            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-                    .frame(width: radius * 2, height: radius * 2)
-                    .position(center)
+                ZStack {
+                    // Track: the upper half of the circle (9 o'clock -> 12 -> 3 o'clock)
+                    Circle()
+                        .trim(from: 0.5, to: 1)
+                        .stroke(Color.secondaryBrand.opacity(0.15),
+                                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                        .frame(width: radius * 2, height: radius * 2)
+                        .position(center)
 
-                // Progress: fills left -> right
-                Circle()
-                    .trim(from: 0.5, to: 0.5 + elapsed * 0.5)
-                    .stroke(Color.secondaryBrand,
-                            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-                    .frame(width: radius * 2, height: radius * 2)
-                    .position(center)
-                    .animation(.linear(duration: 1), value: elapsed)
+                    // Progress: fills left -> right as time passes
+                    Circle()
+                        .trim(from: 0.5, to: 0.5 + elapsed * 0.5)
+                        .stroke(Color.secondaryBrand,
+                                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                        .frame(width: radius * 2, height: radius * 2)
+                        .position(center)
+                        .animation(.linear(duration: 1), value: elapsed)
 
-                // Round label above the arch
-                Text("Round \(currentRound) of \(totalRounds)")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.secondaryText)
-                    .position(x: center.x, y: center.y - radius - lineWidth / 2 - 18)
+                    // Round label above the arch
+                    Text("Round \(currentRound) of \(totalRounds)")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondaryText)
+                        .position(x: center.x, y: center.y - radius - lineWidth / 2 - 18)
 
-                // Time + controls inside the arch
-                VStack(spacing: 16) {
-                    Text(timeString)
-                        .font(.system(size: 72, weight: .bold))
-                        .foregroundColor(.secondaryBrand)
-                        .monospacedDigit()
+                    // Time + controls inside the arch
+                    VStack(spacing: 16) {
+                        Text(timeString)
+                            .font(.system(size: 72, weight: .bold))
+                            .foregroundColor(.secondaryBrand)
+                            .monospacedDigit()
 
-                    HStack(spacing: 20) {
-                        Button { showExitAlert = true } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.secondaryText)
-                                .frame(width: 40, height: 40)
-                                .background(Color.borderSubtle.opacity(0.3))
-                                .clipShape(Circle())
-                        }
+                        HStack(spacing: 20) {
+                            Button { showExitAlert = true } label: {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.secondaryText)
+                                    .frame(width: 40, height: 40)
+                                    .background(Color.borderSubtle.opacity(0.3))
+                                    .clipShape(Circle())
+                            }
 
-                        Button { isRunning.toggle() } label: {
-                            Image(systemName: isRunning ? "pause.fill" : "play.fill")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(width: 48, height: 48)
-                                .background(Color.primaryBrand)
-                                .clipShape(Circle())
+                            Button { isRunning.toggle() } label: {
+                                Image(systemName: isRunning ? "pause.fill" : "play.fill")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .frame(width: 48, height: 48)
+                                    .background(Color.primaryBrand)
+                                    .clipShape(Circle())
+                            }
                         }
                     }
+                    .position(x: center.x, y: center.y - radius * 0.45)
                 }
-                .position(x: center.x, y: center.y - radius * 0.45)
             }
+            .ignoresSafeArea()
         }
-        .ignoresSafeArea()
-    }
 
     // MARK: - Portrait
 
@@ -221,10 +222,3 @@ struct FocusTimerScreen: View {
         .padding(.horizontal, AppSpacing.screenPadding)
     }
 }
-
-#Preview  {
-    NavigationStack {
-        FocusTimerScreen(totalRounds: 3, workDurationMinutes: 50)
-    }
-}
-// For StandBy: #Preview(traits: .landscapeLeft) { ... }
