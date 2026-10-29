@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="55px" height="54px" viewBox="0 0 55 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>c0</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="54.4415094" height="53.1" rx="8"></rect>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="c0" transform="translate(0.5, 0)">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <g id="Rectangle"></g>
+            <g id="Group" mask="url(#mask-2)">
+                <g transform="translate(11.666, 4.5857)">
+                    <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(1.2962, 0)">
+                        <path d="M14.2584906,0 C20.7396226,8.85 31.109434,12.6428571 28.5169811,25.2857143 C27.2207547,35.4 19.4433962,39.1928571 14.2584906,39.1928571 C7.77735849,39.1928571 0,35.4 0,25.2857143 C0,17.7 5.18490566,15.1714286 6.48113208,8.85 C9.07358491,12.6428571 11.6660377,8.85 14.2584906,0 Z" id="Path" fill="#EF7A5F"></path>
+                        <path d="M14.2584906,17.7 C18.1471698,22.7571429 22.0358491,25.2857143 19.4433962,31.6071429 C18.1471698,35.4 15.554717,36.6642857 14.2584906,36.6642857 C11.6660377,36.6642857 9.07358491,34.1357143 9.07358491,30.3428571 C9.07358491,25.2857143 12.9622642,22.7571429 14.2584906,17.7 Z" id="Path" fill="#F7B89F"></path>
+                    </g>
+                    <path d="M0,46.7785714 L31.109434,36.6642857 M0,36.6642857 L31.109434,46.7785714" id="Shape" stroke="#2F3A66" stroke-width="7" fill="#000000" fill-rule="nonzero" stroke-linecap="round"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
