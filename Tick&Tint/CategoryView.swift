@@ -12,7 +12,7 @@ struct PaintingCategory: Identifiable {
     let title: String
     let imageName: String
 }
-
+// last update 
 struct CategoryView: View {
     let totalRounds: Int
     let workDurationMinutes: Int
