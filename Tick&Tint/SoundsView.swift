@@ -2,10 +2,6 @@ import SwiftUI
 import Combine
 import AVFoundation
 
-private extension Color {
-    static let secondaryBrandSelected = Color(hex: "D65A43")
-}
-
 struct SoundItem: Identifiable, Equatable {
     let id: String
     let title: String
