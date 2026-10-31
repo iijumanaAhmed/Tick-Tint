@@ -3,15 +3,17 @@
 //  Tick&Tint
 //
 //  Created by Nada on 14/05/1448 AH.
-//
+// 
 
 
 import SwiftUI
 
 enum AppRoute: Hashable {
     case session
-    case category(totalRounds: Int, workDurationMinutes: Int)
-    case timer(totalRounds: Int, workDurationMinutes: Int)
+    case category(totalRounds: Int, workDurationMinutes: Int, category: String)
+    case timer(round: Int, totalRounds: Int, workDurationMinutes: Int, category: String)
+    case breakTimer(totalRounds: Int, rounds: Int, workDurationMinutes: Int, category: String)
+    case endOfSession(url: URL)
 }
 
 struct ContentView: View {
@@ -28,20 +30,36 @@ struct ContentView: View {
                 case .session:
                     SessionView(navigationPath: $navigationPath)
                     
-                case .category(let rounds, let duration):
+                case .category(let rounds, let duration, let category):
                     CategoryView(
                         totalRounds: rounds,
                         workDurationMinutes: duration,
+                        paintingType: category,
                         navigationPath: $navigationPath)
                     
-                case .timer(let rounds, let duration):
+                case .timer(let rounds, let totalRounds, let duration, let category):
                     FocusTimerScreen(
-                        totalRounds: rounds,
+                        round: rounds,
+                        totalRounds: totalRounds,
                         workDurationMinutes: duration,
+                        paintingType: category,
                         navigationPath: $navigationPath)
+                    
+                case .breakTimer(let total, let rounds, let duration, let category):
+                    BreakView(
+                        totalRounds: total,
+                        rounds: rounds,
+                        workDurationMinutes: duration,
+                        paintingType: category,
+                        navigationPath: $navigationPath
+                    )
+                case .endOfSession(let url):
+                    EndOfSessionView(
+                        savedArtworkURL: url,
+                        navigationPath: $navigationPath
+                    )
                 }
             }
-            //            .toolbar(.hidden, for: .navigationBar)
         }
     }
 }
@@ -108,7 +126,7 @@ struct IntroView: View {
             .opacity(isVisible ? 1 : 0)
         }
         .onAppear {
-            withAnimation(.easeIn(duration: 0.5)) {
+            withAnimation(.easeIn(duration: 0.25)) {
                 isVisible = true
             }
         }

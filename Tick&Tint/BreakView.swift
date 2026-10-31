@@ -1,14 +1,21 @@
 import SwiftUI
-import Playgrounds
 import Combine
 import UIKit
 
 struct BreakView: View {
-    @State private var category: PaintingCategories = .sleepingFox
+    
+    let totalRounds: Int
+    let rounds: Int
+    let workDurationMinutes: Int
+    let paintingType: String
+    
+    // Shared navigation path
+    @Binding var navigationPath: [AppRoute]
+    
+    //    @State private var category: String
     @State private var savedArtworkURL: URL?
     @State private var encouragementMessage = ""
     @State private var showArtwork = false
-    
     
     private var isArtworkComplete: Bool {
         !selectedArtworkRegions.isEmpty &&
@@ -17,13 +24,39 @@ struct BreakView: View {
         }
     }
     // MARK: - Timer Func
-    @State private var remainingSeconds = 300
-    @State private var showingCompletionAlert = false
+    @State private var remainingSeconds: Int
+    
+    init(
+        totalRounds: Int,
+        rounds: Int,
+        workDurationMinutes: Int,
+        paintingType: String,
+        navigationPath: Binding<[AppRoute]>
+    ) {
+        self.totalRounds = totalRounds
+        self.rounds = rounds
+        self.workDurationMinutes = workDurationMinutes
+        self.paintingType = paintingType
+        _navigationPath = navigationPath
+        _remainingSeconds = State(initialValue: workDurationMinutes == 50 ? 600 : 300)
+    }
+    
+    private var formattedTime: String {
+        let minutes = remainingSeconds / 60
+        let seconds = remainingSeconds % 60
+        
+        return String(
+            format: "%02d:%02d",
+            minutes,
+            seconds
+        )
+    }
     
     private let timer = Timer
         .publish(every: 1, on: .main, in: .common)
         .autoconnect()
     
+    @State private var showingCompletionAlert = false
     
     // MARK: - Color Palette
     @State private var selectedNumber = 1
@@ -76,14 +109,16 @@ struct BreakView: View {
     ]
     
     private var selectedArtworkRegions: [ColoringRegion] {
-        switch category {
-        case .animals:
+        switch paintingType {
+        case "Doodles":
             return ColoringArtwork.animals
-        case .sleepingFox:
+        case "Animals":
             return ColoringArtwork.sleepingFox
-        case .words:
+        case "Words":
             return ColoringArtwork.words
-        case .nature:
+        case "Nature":
+            return ColoringArtwork.nature
+        default:
             return ColoringArtwork.nature
         }
     }
@@ -95,13 +130,14 @@ struct BreakView: View {
                 $0.number == item.number &&
                 regionColors[$0.id] == nil
             }
-            
             return hasUncoloredRegions ? item.number : nil
         }
     }
     
     // Remaining fraction for the progress ring.
     private func remainingProgress(for number: Int) -> CGFloat {
+        print("total rounds: \(totalRounds), current R: \(rounds)")
+        
         let matchingRegions = selectedArtworkRegions.filter {
             $0.number == number
         }
@@ -111,7 +147,6 @@ struct BreakView: View {
         let remainingCount = matchingRegions.filter {
             regionColors[$0.id] == nil
         }.count
-        
         return CGFloat(remainingCount) / CGFloat(matchingRegions.count)
     }
     
@@ -119,213 +154,182 @@ struct BreakView: View {
         ZStack {
             Color.appBackground
                 .ignoresSafeArea()
-            NavigationStack {
-                
-                VStack(spacing: 0) {
-                    
-                    // MARK: - Header, Subheadline
-                    VStack(spacing: AppSpacing.small) {
-                        
-                        Text("Break Time")
-                            .font(
-                                .system(
-                                    size: AppFonts.title1,
-                                    weight: .bold
-                                )
-                            )
-                            .foregroundStyle(Color.primaryText)
-                        
-                        Text("Take Your Time and Enjoy Coloring")
-                            .font(
-                                .system(size: AppFonts.headline)
-                            )
-                            .foregroundStyle(Color.primaryText)
-                    }
-                    .padding(.top, AppSpacing.topHeaderOffset)
-                    
-                    // MARK: - Timer
-                    Text(formattedTime)
+            VStack(spacing: 0) {
+                // MARK: - Header, Subheadline
+                VStack(spacing: AppSpacing.small) {
+                    Text("Break Time")
                         .font(
                             .system(
-                                size: AppFonts.title2,
+                                size: AppFonts.title1,
                                 weight: .bold
                             )
                         )
-                        .contentTransition(.numericText())
                         .foregroundStyle(Color.primaryText)
-                        .padding(.top, AppSpacing.medium)
                     
-                    // MARK: - Native Coloring Canvas
-                    ColoringCanvasView(
-                        selectedNumber: selectedNumber,
-                        regionColors: $regionColors,
-                        regions: selectedArtworkRegions
+                    Text("Take Your Time and Enjoy Coloring")
+                        .font(
+                            .system(size: AppFonts.headline)
+                        )
+                        .foregroundStyle(Color.primaryText)
+                }
+                .padding(.top, AppSpacing.topHeaderOffset)
+                
+                // MARK: - Timer
+                Text(formattedTime)
+                    .font(
+                        .system(
+                            size: AppFonts.title2,
+                            weight: .bold
+                        )
                     )
-                    .frame(maxWidth: .infinity)
-                    .frame(maxHeight: 450)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-                    .shadow(
-                        color: .black.opacity(0.15),
-                        radius: 8,
-                        x: 0,
-                        y: 4
-                    )
-                    .padding(.horizontal, AppSpacing.screenPadding)
+                    .contentTransition(.numericText())
+                    .foregroundStyle(Color.primaryText)
                     .padding(.top, AppSpacing.medium)
-                    .onChange(of: isArtworkComplete) { _, isComplete in
-                        guard isComplete, remainingSeconds > 0 else { return }
-                        
-                        saveArtwork()
-                        
-                        let messages = [
-                            "Amazing work! Take a sip of water 💧",
-                            "Beautifully done! Give your body a little stretch 🌸",
-                            "You did it! Relax your shoulders and take a deep breath 🌿",
-                            "Wonderful! Give your eyes a little rest ✨"
-                        ]
-                        
-                        encouragementMessage = messages.randomElement() ?? messages[0]
-                        showingCompletionAlert = true
-                    }
-                    
-                    // MARK: - Color Palette
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: AppSpacing.medium) {
-                            ForEach(palette.filter {
-                                remainingNumbers.contains($0.number)
-                            }, id: \.number) { item in
-                                
-                                Button {
-                                    selectedNumber = item.number
-                                } label: {
-                                    VStack(spacing: 6) {
-                                        ZStack {
-                                            // Background track.
-                                            Circle()
-                                                .stroke(
-                                                    Color.gray.opacity(0.22),
-                                                    lineWidth: 4
-                                                )
-                                            
-                                            // Remaining regions.
-                                            Circle()
-                                                .trim(
-                                                    from: 1 - remainingProgress(for: item.number),
-                                                    to: 1
-                                                )
-                                                .stroke(
-                                                    item.color,
-                                                    style: StrokeStyle(
-                                                        lineWidth: 4,
-                                                        lineCap: .round
-                                                    )
-                                                )
-                                                .rotationEffect(.degrees(-90))
-                                            
-                                            // Color swatch.
-                                            Circle()
-                                                .fill(item.color)
-                                                .padding(7)
-                                        }
-                                        .frame(width: 48, height: 48)
-                                        .overlay {
-                                            Circle()
-                                                .stroke(
-                                                    selectedNumber == item.number
-                                                    ? Color.primaryText
-                                                    : Color.clear,
-                                                    lineWidth: 2
-                                                )
-                                                .padding(2)
-                                        }
-                                        .scaleEffect(
-                                            selectedNumber == item.number ? 1.08 : 1
-                                        )
+                
+                // MARK: - Native Coloring Canvas
+                ColoringCanvasView(
+                    selectedNumber: selectedNumber,
+                    regionColors: $regionColors,
+                    regions: selectedArtworkRegions
+                )
+                .frame(maxWidth: .infinity)
+                .frame(maxHeight: 450)
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .shadow(
+                    color: .black.opacity(0.15),
+                    radius: 8,
+                    x: 0,
+                    y: 4
+                )
+                .padding(.horizontal, AppSpacing.screenPadding)
+                .padding(.top, AppSpacing.medium)
+                
+                .onChange(of: isArtworkComplete) { _, isComplete in
+                    guard isComplete, remainingSeconds > 0 else { return }
                                         
-                                        Text("\(item.number)")
-                                            .font(
-                                                .system(
-                                                    size: 14,
-                                                    weight: selectedNumber == item.number
-                                                    ? .bold
-                                                    : .regular
+                    let messages: [String] = [
+                        "Amazing work! Take a sip of water 💧",
+                        "Beautifully done! Give your body a little stretch 🌸",
+                        "You did it! Relax your shoulders and take a deep breath 🌿",
+                        "Wonderful! Give your eyes a little rest ✨",
+                        "Great job! Take a moment to appreciate yourself 💗",
+                        "You're doing amazing! Stretch your arms above your head ☁️",
+                        "Well done! Take a few slow, calming breaths 🌷",
+                        "Fantastic! Unclench your jaw and relax your face 🦋",
+                        "You deserve this break! Give your hands and wrists a little rest 🌼",
+                        "Keep shining! Look away from your screen and enjoy the moment 🌞"
+                    ]
+                    
+                    encouragementMessage = messages.randomElement() ?? messages[0]
+                }
+                
+                // MARK: - Color Palette
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: AppSpacing.medium) {
+                        ForEach(palette.filter {
+                            remainingNumbers.contains($0.number)
+                        }, id: \.number) { item in
+                            
+                            Button {
+                                selectedNumber = item.number
+                            } label: {
+                                VStack(spacing: 6) {
+                                    ZStack {
+                                        // Background track.
+                                        Circle()
+                                            .stroke(
+                                                Color.gray.opacity(0.22),
+                                                lineWidth: 4
+                                            )
+                                        
+                                        // Remaining regions.
+                                        Circle()
+                                            .trim(
+                                                from: 1 - remainingProgress(for: item.number),
+                                                to: 1
+                                            )
+                                            .stroke(
+                                                item.color,
+                                                style: StrokeStyle(
+                                                    lineWidth: 4,
+                                                    lineCap: .round
                                                 )
                                             )
-                                            .foregroundStyle(Color.primaryText)
+                                            .rotationEffect(.degrees(-90))
+                                        
+                                        // Color swatch.
+                                        Circle()
+                                            .fill(item.color)
+                                            .padding(7)
                                     }
-                                    .frame(width: 56)
-                                    .contentShape(Rectangle())
+                                    .frame(width: 48, height: 48)
+                                    .overlay {
+                                        Circle()
+                                            .stroke(
+                                                selectedNumber == item.number
+                                                ? Color.primaryText
+                                                : Color.clear,
+                                                lineWidth: 2
+                                            )
+                                            .padding(2)
+                                    }
+                                    .scaleEffect(
+                                        selectedNumber == item.number ? 1.08 : 1
+                                    )
+                                    
+                                    Text("\(item.number)")
+                                        .font(
+                                            .system(
+                                                size: 14,
+                                                weight: selectedNumber == item.number
+                                                ? .bold
+                                                : .regular
+                                            )
+                                        )
+                                        .foregroundStyle(Color.primaryText)
                                 }
-                                .buttonStyle(.plain)
+                                .frame(width: 56)
+                                .contentShape(Rectangle())
                             }
-                        }
-                        .padding(.horizontal, AppSpacing.screenPadding)
-                        .padding(.vertical, AppSpacing.small)
-                    }
-                    .padding(.top, AppSpacing.extraLarge)
-                    .onChange(of: remainingNumbers) { _, newNumbers in
-                        if !newNumbers.contains(selectedNumber),
-                           let nextNumber = newNumbers.first {
-                            selectedNumber = nextNumber
+                            .buttonStyle(.plain)
                         }
                     }
-                    if let url = savedArtworkURL {
-                        Button("View My Artwork") {
-                            showArtwork = true
-                        }
-                        .sheet(isPresented: $showArtwork) {
-                            EndOfSessionView(savedArtworkURL: url)
-                        }
-                        
-                        
+                    .padding(.horizontal, AppSpacing.screenPadding)
+                    .padding(.vertical, AppSpacing.small)
+                }
+                .padding(.top, AppSpacing.extraLarge)
+                .onChange(of: remainingNumbers) { _, newNumbers in
+                    if !newNumbers.contains(selectedNumber),
+                       let nextNumber = newNumbers.first {
+                        selectedNumber = nextNumber
                     }
                 }
             }
-            Spacer(minLength: AppSpacing.medium)
-            
-            
         }
-        .navigationTitle("Coloring Break")
-        .navigationBarTitleDisplayMode(.inline)
-        .onReceive(timer) { _ in
-            guard remainingSeconds > 0 else {
-                return
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showArtwork) {
+            if let url = savedArtworkURL {
+                EndOfSessionView(savedArtworkURL: url,
+                                 navigationPath: $navigationPath
+                )
             }
-            
-            remainingSeconds -= 1
-            
-            if remainingSeconds == 0 {
-                saveArtwork()
-                showingCompletionAlert = true
-            }            }
-        .alert(
-            remainingSeconds == 0 ? "Break Complete" : "Beautifully Done!",
-            isPresented: $showingCompletionAlert
-        ) {
-            Button("OK", role: .cancel) { }
-            
-        } message: {
-            Text(
-                remainingSeconds == 0
-                ? "Your five-minute coloring break has ended."
-                : encouragementMessage
-            )
         }
-    }
-    
-    private var formattedTime: String {
-        let minutes = remainingSeconds / 60
-        let seconds = remainingSeconds % 60
         
-        return String(
-            format: "%02d:%02d",
-            minutes,
-            seconds
-        )
+        Spacer(minLength: AppSpacing.medium)
+            .onReceive(timer) { _ in
+                guard remainingSeconds > 0 else { return }
+                
+                remainingSeconds -= 1
+                
+                if remainingSeconds == 0 {
+                    handleBreakCompletion()
+                }
+            }
     }
     
-    private func saveArtwork() {
+    private func saveArtwork() -> URL? {
         let canvas = ColoringCanvasView(
             selectedNumber: selectedNumber,
             regionColors: $regionColors,
@@ -342,7 +346,7 @@ struct BreakView: View {
         guard let image = renderer.uiImage,
               let data = image.pngData() else {
             print("Failed to render artwork.")
-            return
+            return nil
         }
         
         do {
@@ -361,16 +365,50 @@ struct BreakView: View {
             )
             
             try data.write(to: fileURL, options: .atomic)
-            savedArtworkURL = fileURL
             
             print("Artwork saved at: \(fileURL)")
+            return fileURL
             
         } catch {
             print("Failed to save artwork: \(error)")
+            return nil
+        }
+    }
+    
+    private func handleBreakCompletion() {
+        var nextRound: Int
+        if rounds < totalRounds {
+            // Case 1: Continue to the next focus round
+            nextRound = rounds + 1
+            navigationPath.append(
+                .timer(
+                    round: nextRound,
+                    totalRounds: totalRounds,
+                    workDurationMinutes: workDurationMinutes,
+                    category: paintingType
+                )
+            )
+            
+        } else {
+            // Case 2: Final round completed
+            if let url = saveArtwork() {
+                savedArtworkURL = url
+                showArtwork = true
+            }
         }
     }
 }
 
+
 #Preview {
-    BreakView()
+    NavigationStack {
+        BreakView(
+            totalRounds: 4,
+            rounds: 2,
+            workDurationMinutes: 25,
+            paintingType: "Animals",
+            navigationPath: .constant([])
+        )
+    }
 }
+

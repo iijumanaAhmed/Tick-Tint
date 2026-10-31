@@ -2,6 +2,10 @@ import SwiftUI
 
 struct EndOfSessionView: View {
     let savedArtworkURL: URL
+    // Shared navigation path
+    @Binding var navigationPath: [AppRoute]
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
         
         ZStack {
@@ -55,7 +59,9 @@ struct EndOfSessionView: View {
                 }
                 
                 Button {
-                    // redirect to nada's first screen
+                    dismiss()
+                    navigationPath.append(
+                        .session)
                 } label: {
                     Image(systemName: "checkmark")
                         .font(.system(size: 20, weight: .bold))
@@ -64,14 +70,11 @@ struct EndOfSessionView: View {
                         .background(Color.primaryBrand, in: Circle())
                 }
                 .padding(.top, AppSpacing.small)
-
-                
             }
             .padding(.horizontal, AppSpacing.screenPadding)
-            
-
         }
         
     }
 }
+
 

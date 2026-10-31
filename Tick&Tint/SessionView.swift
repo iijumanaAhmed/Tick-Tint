@@ -116,9 +116,12 @@ struct SessionView: View {
                     navigationPath.append(
                         .category(
                             totalRounds: rounds,
-                            workDurationMinutes: workDurationMinutes
+                            workDurationMinutes: workDurationMinutes,
+                            category: ""
                         )
                     )
+                    selectedSession = ""
+                    rounds = 1
                 } label: {
                     Text("Start")
                         .font(.system(size: AppFonts.body, weight: .medium))
@@ -216,3 +219,4 @@ struct DecorativeBlobs: View {
         .allowsHitTesting(false)
     }
 }
+

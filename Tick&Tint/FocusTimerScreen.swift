@@ -9,10 +9,11 @@ import SwiftUI
 import Combine
 
 struct FocusTimerScreen: View {
-    
+    let round: Int
     let totalRounds: Int
     let workDurationMinutes: Int
-    
+    let paintingType: String
+
     // Shared navigation path
     @Binding var navigationPath: [AppRoute]
     
@@ -29,13 +30,16 @@ struct FocusTimerScreen: View {
         .autoconnect()
     
     init(
-        totalRounds: Int = 4,
-        workDurationMinutes: Int = 25,
+        round: Int,
+        totalRounds: Int,
+        workDurationMinutes: Int,
+        paintingType: String,
         navigationPath: Binding<[AppRoute]>
     ) {
-        
+        self.round = round
         self.totalRounds = totalRounds
         self.workDurationMinutes = workDurationMinutes
+        self.paintingType = paintingType
         _navigationPath = navigationPath
         _timeRemaining = State(initialValue: workDurationMinutes * 60)
     }
@@ -63,14 +67,12 @@ struct FocusTimerScreen: View {
     
     private func finishRound() {
         isRunning = false
-        if currentRound < totalRounds {
-            currentRound += 1
+        if round < totalRounds {
             timeRemaining = workDurationMinutes * 60
         }
     }
     
     // MARK: - Body
-    
     var body: some View {
         Group {
             if isStandBy {
@@ -90,6 +92,16 @@ struct FocusTimerScreen: View {
             
             if timeRemaining == 0 {
                 finishRound()
+                navigationPath.append(
+                    .breakTimer(
+                        totalRounds: totalRounds,
+                        rounds: round,
+                        workDurationMinutes: workDurationMinutes,
+                        category: paintingType
+                    )
+                )
+                currentRound += 1
+
             }
         }
         .alert("End Focus Session?", isPresented: $showExitAlert) {
@@ -137,7 +149,7 @@ struct FocusTimerScreen: View {
                     .animation(.linear(duration: 1), value: elapsed)
                 
                 // Round label
-                Text("Round \(currentRound) of \(totalRounds)")
+                Text("Round \(round) of \(totalRounds)")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(Color.secondaryText)
                     .position(
@@ -196,7 +208,7 @@ struct FocusTimerScreen: View {
                 Spacer()
                     .frame(height: AppSpacing.statusBarHeight + AppSpacing.topHeaderOffset)
                 
-                Text("Round \(currentRound) of \(totalRounds)")
+                Text("Round \(round) of \(totalRounds)")
                     .font(.system(size: AppFonts.subheadline, weight: .regular))
                     .foregroundStyle(Color.secondaryText)
                     .padding(.bottom, AppSpacing.small)
@@ -262,7 +274,7 @@ struct FocusTimerScreen: View {
                             Image(systemName: isRunning ? "pause.fill" : "play.fill")
                                 .font(.system(size: 20, weight: .semibold))
                                 .foregroundStyle(.white)
-                                .frame(width: 56, height: 56)
+                                .frame(width: 48, height: 48)
                                 .background(Color.primaryBrand)
                                 .clipShape(Circle())
                         }
@@ -279,9 +291,12 @@ struct FocusTimerScreen: View {
 #Preview {
     NavigationStack {
         FocusTimerScreen(
+            round: 1,
             totalRounds: 3,
-            workDurationMinutes: 50,
+            workDurationMinutes: 1,
+            paintingType: "Animals",
             navigationPath: .constant([])
         )
     }
 }
+

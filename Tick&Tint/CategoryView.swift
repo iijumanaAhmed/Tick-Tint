@@ -12,11 +12,12 @@ struct PaintingCategory: Identifiable {
     let title: String
     let imageName: String
 }
-// last update 
+
 struct CategoryView: View {
     let totalRounds: Int
     let workDurationMinutes: Int
-    
+    let paintingType: String
+
     // Shared navigation path
     @Binding var navigationPath: [AppRoute]
     
@@ -58,8 +59,10 @@ struct CategoryView: View {
                             Button {
                                 navigationPath.append(
                                     .timer(
+                                        round: 1,
                                         totalRounds: totalRounds,
-                                        workDurationMinutes: workDurationMinutes
+                                        workDurationMinutes: workDurationMinutes,
+                                        category: category.title
                                     )
                                 )
                             } label: {
@@ -108,7 +111,9 @@ struct CategoryCard: View {
         CategoryView(
             totalRounds: 3,
             workDurationMinutes: 25,
+            paintingType: "Animals",
             navigationPath: .constant([])
         )
     }
 }
+
