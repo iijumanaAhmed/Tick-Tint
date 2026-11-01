@@ -14,12 +14,8 @@ struct SoundItem: Identifiable, Equatable {
 struct SoundsView: View {
 
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var sound: SoundManager   // shared with the next page
+    @EnvironmentObject private var sound: SoundManager
     @State private var selected: SoundItem?
-
-    /// Called when Start is pressed. Your friend connects the
-    /// navigation to the next page here (not used yet).
-    var onStart: () -> Void = {}
 
     private let items = [
         SoundItem(id: "fire",   title: "Fire",   icon: "fire",   file: "fire"),
@@ -59,15 +55,14 @@ struct SoundsView: View {
         .navigationBarBackButtonHidden(true)
     }
 
-    // MARK: - Sound card
+    // MARK: - Sound card (معاينة 3 ثوانٍ فقط)
 
     private func card(for item: SoundItem) -> some View {
         let isSelected = selected == item
 
         return Button {
             selected = item
-            sound.preview(item.file)
-            // plays for 3 seconds so the user can hear it
+            sound.preview(item.file) // تشغيل صوت معاينة 3 ثوانٍ
         } label: {
             HStack(spacing: AppSpacing.medium) {
                 ZStack {
@@ -94,40 +89,38 @@ struct SoundsView: View {
             .animation(.easeInOut(duration: 0.15), value: isSelected)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(item.title)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
-    // MARK: - Start (does nothing for now)
+    // MARK: - Start Button (تشغيل الصوت 5 دقائق بالخلفية والعودة لـ BreakView)
 
     private var startButton: some View {
         Button {
-            // TODO: connect later.
-            // When ready:  guard let s = selected else { return }
-            //              sound.start(s.file)     // plays 5 minutes
-            //              onStart()               // go to the next page
+            if let soundFile = selected?.file {
+                sound.start(soundFile) // تشغيل الصوت لمدة 5 دقائق بالخلفية
+            }
+            dismiss() // العودة مباشرة لصفحة BreakView
         } label: {
             Text("Start")
-                .font(.system(size: AppFonts.title2))
+                .font(.system(size: AppFonts.title2, weight: .semibold))
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, minHeight: 46)
-                .background(Color.primaryBrand)
+                .background(selected != nil ? Color.primaryBrand : Color.primaryBrand.opacity(0.5))
                 .clipShape(Capsule())
                 .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 3)
         }
         .buttonStyle(.plain)
+        .disabled(selected == nil)
     }
 
-    // MARK: - Cancel (does nothing for now)
+    // MARK: - Cancel Button (إيقاف المعاينة والعودة لـ BreakView)
 
     private var cancelButton: some View {
         Button {
-            // TODO: connect later.
-            // When ready:  sound.stop()
-            //              dismiss()
+            sound.stop()
+            dismiss()
         } label: {
             Text("Cancel")
-                .font(.system(size: AppFonts.title2))
+                .font(.system(size: AppFonts.title2, weight: .semibold))
                 .foregroundColor(.secondaryText)
                 .frame(maxWidth: .infinity, minHeight: 46)
                 .background(Color.white)
@@ -145,14 +138,13 @@ struct SoundsView: View {
 
 // MARK: - Sound manager
 
-/// Plays a 3-second preview, or one looping sound for exactly 5 minutes.
 final class SoundManager: ObservableObject {
 
-    static let duration: TimeInterval = 5 * 60      // 5 minutes
-    static let previewDuration: TimeInterval = 3    // 3 seconds
+    static let duration: TimeInterval = 5 * 60       // 5 دقائق
+    static let previewDuration: TimeInterval = 3     // 3 ثواني للمعاينة
 
     @Published private(set) var isPlaying = false
-    @Published private(set) var remaining = 0       // seconds left
+    @Published private(set) var remaining = 0
 
     private var player: AVAudioPlayer?
     private var timer: Timer?
@@ -160,10 +152,8 @@ final class SoundManager: ObservableObject {
     private var fadeStarted = false
     private var previewWorks: [DispatchWorkItem] = []
 
-    // MARK: - Preview (3 seconds)
-
     func preview(_ name: String) {
-        stop()                                       // stops any sound or older preview
+        stop()
         guard play(name) else { return }
 
         let fade = DispatchWorkItem { [weak self] in
@@ -173,18 +163,15 @@ final class SoundManager: ObservableObject {
             self?.stop()
         }
         previewWorks = [fade, end]
-        DispatchQueue.main.asyncAfter(deadline: .now() + Self.previewDuration - 0.5, execute: fade)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + (Self.previewDuration - 0.5), execute: fade)
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.previewDuration, execute: end)
     }
 
-    // MARK: - Start (5 minutes)
-
     func start(_ name: String) {
-        stop()                                       // never play two sounds at once
+        stop()
         guard play(name) else { return }
 
-        // The end time is a real date, so the countdown stays accurate
-        // even if the app was busy or the screen was locked.
         endDate = Date().addingTimeInterval(Self.duration)
         fadeStarted = false
         remaining = Int(Self.duration)
@@ -197,8 +184,6 @@ final class SoundManager: ObservableObject {
         timer = t
     }
 
-    // MARK: - Shared playback
-
     private func play(_ name: String) -> Bool {
         guard let url = Bundle.main.url(forResource: name, withExtension: "m4a") else {
             print("Missing file: \(name).m4a")
@@ -210,7 +195,7 @@ final class SoundManager: ObservableObject {
             try session.setActive(true)
 
             let p = try AVAudioPlayer(contentsOf: url)
-            p.numberOfLoops = -1                     // loop until stopped
+            p.numberOfLoops = -1
             p.volume = 1
             p.prepareToPlay()
             p.play()
@@ -222,21 +207,17 @@ final class SoundManager: ObservableObject {
         }
     }
 
-    // MARK: - Tick
-
     private func tick() {
         let left = endDate.timeIntervalSinceNow
         let secs = max(0, Int(ceil(left)))
         if secs != remaining { remaining = secs }
 
-        if left <= 2, !fadeStarted {                 // gentle 2-second fade-out
+        if left <= 2, !fadeStarted {
             fadeStarted = true
             player?.setVolume(0, fadeDuration: 2)
         }
         if left <= 0 { stop() }
     }
-
-    // MARK: - Stop
 
     func stop() {
         previewWorks.forEach { $0.cancel() }
