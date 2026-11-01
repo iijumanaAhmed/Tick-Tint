@@ -1,6 +1,7 @@
 import SwiftUI
 import Combine
 import UIKit
+import AVFoundation
 
 struct BreakView: View {
     
@@ -18,7 +19,8 @@ struct BreakView: View {
     @State private var savedArtworkURL: URL?
     @State private var encouragementMessage = ""
     @State private var showArtwork = false
-    
+    @State private var notificationPlayer: AVAudioPlayer?
+
     // MARK: - Popup State & Sound Navigation
     @State private var showSoundPopup: Bool = true
     @State private var navigateToSounds: Bool = false
@@ -115,16 +117,16 @@ struct BreakView: View {
     
     private var selectedArtworkRegions: [ColoringRegion] {
         switch paintingType {
-        case "Doodles":
-            return ColoringArtwork.animals
+        case "Electronics":
+            return ColoringArtwork.robot
         case "Animals":
-            return ColoringArtwork.sleepingFox
+            return ColoringArtwork.cat
         case "Words":
-            return ColoringArtwork.words
+            return ColoringArtwork.dream
         case "Nature":
             return ColoringArtwork.nature
         default:
-            return ColoringArtwork.nature
+            return ColoringArtwork.owl
         }
     }
     
@@ -206,6 +208,8 @@ struct BreakView: View {
                     ]
                     
                     encouragementMessage = messages.randomElement() ?? messages[0]
+                    showingCompletionAlert = true
+
                 }
                 
                 // MARK: - Color Palette
@@ -263,6 +267,19 @@ struct BreakView: View {
                         selectedNumber = nextNumber
                     }
                 }
+            }
+            .alert(
+                remainingSeconds == 0 ? "Break Complete" : "Beautifully Done!",
+                isPresented: $showingCompletionAlert
+            ) {
+                Button("OK", role: .cancel) { }
+                
+            } message: {
+                Text(
+                    remainingSeconds == 0
+                    ? "You've completed your coloring break!"
+                    : encouragementMessage
+                )
             }
             
             // MARK: - Popup Overlay
@@ -343,6 +360,8 @@ struct BreakView: View {
             // إذا كان التايمر قد بدأ سابقاً (مثلاً بعد العودة من صفحة الأصوات)، يستأنف العد
             if isTimerRunning {
                 resumeTimer()
+            } else {
+                playNotificationSound(named: "breakTime")
             }
         }
         .onDisappear {
@@ -377,6 +396,7 @@ struct BreakView: View {
             } else {
                 remainingSeconds = 0
                 stopTimer()
+                playNotificationSound(named: "focusTime")
                 handleBreakCompletion()
             }
         }
@@ -453,6 +473,23 @@ struct BreakView: View {
             }
         }
     }
+    
+    private func playNotificationSound(named soundName: String) {
+        guard let soundURL = Bundle.main.url(
+            forResource: soundName,
+            withExtension: "mp3"
+        ) else {
+            print("Sound file not found: \(soundName)")
+            return
+        }
+
+        do {
+            notificationPlayer = try AVAudioPlayer(contentsOf: soundURL)
+            notificationPlayer?.play()
+        } catch {
+            print("Failed to play sound: \(error.localizedDescription)")
+        }
+    }
 }
 
 #Preview {
@@ -465,7 +502,7 @@ struct BreakView: View {
                     totalRounds: 4,
                     rounds: 2,
                     workDurationMinutes: 25,
-                    paintingType: "Animals",
+                    paintingType: "Words",
                     navigationPath: .constant([])
                 )
             }
@@ -475,3 +512,4 @@ struct BreakView: View {
     
     return PreviewWrapper()
 }
+

@@ -24,8 +24,8 @@ struct CategoryView: View {
     let categories: [PaintingCategory] = [
         PaintingCategory(title: "Words", imageName: "12-dream"),
         PaintingCategory(title: "Animals", imageName: "cat"),
-        PaintingCategory(title: "Nature", imageName: "02-owl"),
-        PaintingCategory(title: "Doodles", imageName: "06-doodles")
+        PaintingCategory(title: "Nature", imageName: "nature"),
+        PaintingCategory(title: "Electronics", imageName: "04-robot")
     ]
     
     let columns = [
